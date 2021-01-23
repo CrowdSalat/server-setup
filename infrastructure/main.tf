@@ -26,8 +26,8 @@ output "print_locations" {
   value = data.hcloud_locations.ds
 }
 
-output "print_keys" {
-  value = data.hcloud_ssh_keys.all_keys
+output "print_server_spec" {
+  value = hcloud_server.main
 }
 
 resource "hcloud_server" "main" {

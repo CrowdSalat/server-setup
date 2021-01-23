@@ -28,18 +28,30 @@ The domain weyrich.dev is bought on namecheap (14€ a year) and can be managed 
 
 ## Provisioning
 
-Ansible is used to install on OS.
+### ansible
 
-- docker
-- [k3s](https://rancher.com/docs/k3s/latest/en/) 
+[k3s](https://rancher.com/docs/k3s/latest/en/) is installed with [k3s-ansible](https://github.com/k3s-io/k3s-ansible.
 
-Ansible is used to install on k3s. 
+```shell
+cd provisioning/k3s-ansible
+# test connection
+ansible -i inventory/hetzner/hosts.ini all -m ping
+# install k3s
+ansible-playbook site.yml -i inventory/hetzner/hosts.ini
+
+# To connect to the cluster copy the ~/.kube/config from the server to your local ~/.kube/config
+# check connection to k3s with
+kubectl config get-contexts
+```
+
+*I would have used packer to create a ready provisioned os image, but Hetzner only allows standard images for installation.*
+
+### kubectl 
 
 - drone ci
 - [Certbot (Lets Encrypt)]() - to handle certificate renewal
 - nginx
   
-*I would have used packer to create a ready provisioned os image, but Hetzner only allows standard images for installation.*
 
 ## CI/CD
 
