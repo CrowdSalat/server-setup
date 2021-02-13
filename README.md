@@ -46,6 +46,40 @@ kubectl config get-contexts
 
 *I would have used packer to create a ready provisioned os image, but Hetzner only allows standard images for installation.*
 
+### cert-manager (letsencrypt)
+
+- [cert-manager](https://cert-manager.io/) is a k8s native x.509 certificate manager. 
+- It uses custom resource definitions
+    - [Issuer/ClusterIssuer](https://cert-manager.io/docs/concepts/issuer/) represent CAs. A ClusterIssuer works for multiple workspaces. A normal Issuer only for one namespace.
+    - [Certificate](https://cert-manager.io/docs/concepts/certificate/) represents the x509 certfiicates which will be renewed. It will be used to derive a k8s secret.
+- It can be used to deploy ACME (Let's Encrypt) certificates. 
+
+1. Install it with the [official helm chart](https://artifacthub.io/packages/helm/jetstack/cert-manager)
+2. Configure [ACME Issuer with dns challenge for cloudflare](https://cert-manager.io/docs/configuration/acme/dns01/cloudflare/) 
+3. Follow the instructions to [automatically secure Ingress resources with certficates](https://cert-manager.io/docs/usage/ingress/)
+
+```shell
+# 1. Install cert-manager via helm
+
+kubectl create namespace cert-manager
+
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+
+helm install \
+  cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --set installCRDs=true
+
+# 2. 
+# get your api token from https://dash.cloudflare.com/profile/api-tokens
+TMP_API_TOKEN=<your_api_key>
+kubectl create secret generic cloudflare-api-token-secret --namespace cert-manager --from-literal=api-token=$TMP_API_TOKEN
+
+kubectl apply --namespace cert-manager -f ./provisioning/ClusterIssuer.yaml 
+
+```
+
 ### drone ci
 
 Use [this helm chart](https://github.com/drone/charts) to install drone ci and integrate it with your Github account.
