@@ -1,0 +1,15 @@
+env:
+  DRONE_RPC_SECRET: <GENERATED_SECRET_FROM_STEP_1>
+  DRONE_GITHUB_CLIENT_ID: d54191c8fa993572a1e6
+  DRONE_GITHUB_CLIENT_SECRET: <FROM_GITHUB_SECRET>
+  DRONE_SERVER_PROTO: https
+  DRONE_USER_FILTER: crowdsalat
+  DRONE_USER_CREATE: username:crowdsalat,admin:true
+  DRONE_SERVER_HOST: ci.weyrich.dev
+
+ingress:
+  enabled: true
+  hosts:
+    - host: ci.weyrich.dev
+      paths:
+        - "/"

@@ -28,7 +28,7 @@ The domain weyrich.dev is bought on namecheap (14€ a year) and can be managed 
 
 ## Provisioning
 
-### ansible
+### k3s
 
 [k3s](https://rancher.com/docs/k3s/latest/en/) is installed with [k3s-ansible](https://github.com/k3s-io/k3s-ansible.
 
@@ -46,7 +46,38 @@ kubectl config get-contexts
 
 *I would have used packer to create a ready provisioned os image, but Hetzner only allows standard images for installation.*
 
-### kubectl 
+### drone ci
+
+Use [this helm chart](https://github.com/drone/charts) to install drone ci and integrate it with your Github account.
+
+```shell
+helm repo add drone https://charts.drone.io
+helm repo update
+helm search repo drone
+
+# see installed helm releases
+helm list
+
+# generate DRONE_RPC_SECRET with:
+TMP_DRONE_RPC_SECRET=$(openssl rand -hex 32)
+
+# to access github client_id and secret generate a new oauth application here: https://github.com/settings/developers
+TMP_GITHUB_CLIENT_SECRET=<>
+
+# install drone server on k8s
+helm install drone drone/drone \
+    --namespace ci \
+    -f ./provisioning/values-drone.yaml \
+    --set env.DRONE_RPC_SECRET=$TMP_DRONE_RPC_SECRET \
+    --set env.DRONE_GITHUB_CLIENT_SECRET=$TMP_GITHUB_CLIENT_SECRET
+
+# install drone k8s runner (which runs the pipeline steps) in k8s
+
+
+## uninstall
+helm uninstall drone --namespace ci
+
+```
 
 - drone ci
 - [Certbot (Lets Encrypt)]() - to handle certificate renewal
