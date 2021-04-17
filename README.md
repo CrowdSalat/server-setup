@@ -110,17 +110,16 @@ echo -n foo | \
 
 - [cert-manager](https://cert-manager.io/) is a k8s native x.509 certificate manager.
 - It uses custom resource definitions
-    - [Issuer/ClusterIssuer](https://cert-manager.io/docs/concepts/issuer/) represent CAs. A ClusterIssuer works for multiple workspaces. A normal Issuer only for one namespace.
+    - [Issuer/ClusterIssuer](https://cert-manager.io/docs/concepts/issuer/) represent CAs. A ClusterIssuer works for multiple namespaces. A normal Issuer only for one namespace.
     - [Certificate](https://cert-manager.io/docs/concepts/certificate/) represents the x509 certificates which will be renewed. It will be used to derive a k8s secret.
 - It can be used to deploy ACME (Let's Encrypt) certificates.
 
 1. Install it with the [official helm chart](https://artifacthub.io/packages/helm/jetstack/cert-manager)
-2. Configure [ACME Issuer with dns challenge for cloudflare](https://cert-manager.io/docs/configuration/acme/dns01/cloudflare/) 
+2. Configure [ACME Issuer with dns challenge for cloudflare](https://cert-manager.io/docs/configuration/acme/dns01/cloudflare/)
 3. To automatically deliver a valid certificate to a ingress resource add the annotation `cert-manager.io/cluster-issuer: acme-ca`. [Here](https://cert-manager.io/docs/usage/ingress/)) are the complete instructions.
 
 ```shell
 # 1. Install cert-manager via helm
-
 kubectl create namespace cert-manager
 
 helm repo add jetstack https://charts.jetstack.io
@@ -134,11 +133,16 @@ helm install \
 # 2. configure acme with cloudflare
 kubectl apply --namespace cert-manager -f ./provisioning/ClusterIssuer.yaml 
 
-## get your api token from https://dash.cloudflare.com/profile/api-tokens
-TMP_API_TOKEN=<your_api_key>
-kubectl create secret generic cloudflare-api-token-secret --namespace cert-manager --from-literal=api-token=$TMP_API_TOKEN
-
-kubectl apply --namespace cert-manager -f ./provisioning/ClusterIssuer.yaml 
+## the value for api-token in the sealedSecret was create in the following way
+### get your api token from https://dash.cloudflare.com/profile/api-tokens
+### generate the sealedSecret from the secret
+TMP_API_TOKEN=<cloudflare_api_token>
+kubectl create secret generic cloudflare-api-token-secret \
+    --namespace cert-manager --from-literal=api-token=$TMP_API_TOKEN \
+    --dry-run=client -o yaml | \
+  kubeseal --controller-name=sealed-secrets --controller-namespace=kube-system \
+  --scope=strict --namespace cert-manager \
+  --name cloudflare-api-token-secret --format yaml
 ```
 
 ### drone ci
