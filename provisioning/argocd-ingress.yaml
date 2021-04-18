@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: argocd-server-ingress
+  namespace: argocd
+  annotations:
+    cert-manager.io/cluster-issuer: cloudflare-dns-acme-ca
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+  - host: argocd.weyrich.dev
+    http:
+      paths:
+      - backend:
+          serviceName: argocd-server
+          servicePort: https
+        path: /
+  tls:
+  - hosts:
+    - argocd.weyrich.dev
+    secretName: argocd-secret # do not change, this is provided by Argo CD

@@ -110,13 +110,13 @@ echo -n foo | \
 
 - [cert-manager](https://cert-manager.io/) is a k8s native x.509 certificate manager.
 - It uses custom resource definitions
-    - [Issuer/ClusterIssuer](https://cert-manager.io/docs/concepts/issuer/) represent CAs. A ClusterIssuer works for multiple namespaces. A normal Issuer only for one namespace.
-    - [Certificate](https://cert-manager.io/docs/concepts/certificate/) represents the x509 certificates which will be renewed. It will be used to derive a k8s secret.
+  - [Issuer/ClusterIssuer](https://cert-manager.io/docs/concepts/issuer/) represent CAs. A ClusterIssuer works for multiple namespaces. A normal Issuer only for one namespace.
+  - [Certificate](https://cert-manager.io/docs/concepts/certificate/) represents the x509 certificates which will be renewed. It will be used to derive a k8s secret.
 - It can be used to deploy ACME (Let's Encrypt) certificates.
 
 1. Install it with the [official helm chart](https://artifacthub.io/packages/helm/jetstack/cert-manager)
 2. Configure [ACME Issuer with dns challenge for cloudflare](https://cert-manager.io/docs/configuration/acme/dns01/cloudflare/)
-3. To automatically deliver a valid certificate to a ingress resource add the annotation `cert-manager.io/cluster-issuer: acme-ca`. [Here](https://cert-manager.io/docs/usage/ingress/)) are the complete instructions.
+3. To automatically deliver a valid certificate to a ingress resource add the annotation `cert-manager.io/cluster-issuer: cloudflare-dns-acme-ca` and set a host with a secret under tls. [Here](https://cert-manager.io/docs/usage/ingress/)) are the complete instructions.
 
 ```shell
 # 1. Install cert-manager via helm
@@ -131,7 +131,7 @@ helm install \
   --set installCRDs=true
 
 # 2. configure acme with cloudflare
-kubectl apply --namespace cert-manager -f ./provisioning/ClusterIssuer.yaml 
+kubectl apply --namespace cert-manager -f ./provisioning/ca-acme-dns.yaml 
 
 ## the value for api-token in the sealedSecret was create in the following way
 ### get your api token from https://dash.cloudflare.com/profile/api-tokens
@@ -143,6 +143,23 @@ kubectl create secret generic cloudflare-api-token-secret \
   kubeseal --controller-name=sealed-secrets --controller-namespace=kube-system \
   --scope=strict --namespace cert-manager \
   --name cloudflare-api-token-secret --format yaml
+```
+
+### argocd
+
+1. [Install argo](https://argo-cd.readthedocs.io/en/stable/getting_started/#1-install-argo-cd)
+2. [Configure ingress resource with certmanager](https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#ssl-passthrough-with-cert-manager-and-lets-encrypt)
+
+```shell
+# 1.
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# 2. configure ingress
+kubectl apply -f ./provisioning/argocd-ingress.yaml
+
+# 3. get password
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 ```
 
 ### drone ci
