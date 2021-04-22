@@ -148,6 +148,7 @@ kubectl create secret generic cloudflare-api-token-secret \
 ### argocd
 
 1. [Install argo](https://argo-cd.readthedocs.io/en/stable/getting_started/#1-install-argo-cd)
+2. Disable TLS on argo-server (--insecure) to work with an ingress with tls termination
 2. [Configure ingress resource with certmanager](https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#ssl-passthrough-with-cert-manager-and-lets-encrypt)
 
 ```shell
@@ -155,11 +156,19 @@ kubectl create secret generic cloudflare-api-token-secret \
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
-# 2. configure ingress
+# 2. disable tls on argocd server
+kubectl patch -n argocd deployment argocd-server --type json -p='[ { "op": "replace", "path":"/spec/template/spec/containers/0/command","value": ["argocd-server","--staticassets","/shared/app","--insecure"] }]' 
+
+# 3. configure ingress which uses tls handoff (default behaviour of traefik)
 kubectl apply -f ./provisioning/argocd-ingress.yaml
 
-# 3. get password
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+# 4. get password for admin user
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d 
+
+
+# (optional) forward server if ingress does not work or you do not have a domain
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+
 ```
 
 ### drone ci
