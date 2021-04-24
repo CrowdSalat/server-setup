@@ -165,55 +165,17 @@ kubectl apply -f ./provisioning/argocd-ingress.yaml
 # 4. get password for admin user
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d 
 
-
-# (optional) forward server if ingress does not work or you do not have a domain
+# 5. change password with argocd cli
+brew install argocd
 kubectl port-forward svc/argocd-server -n argocd 8080:443
-
+argocd login localhost:8080
+kubectl -n argocd delete secret argocd-initial-admin-secret
 ```
-
-### drone ci
-
-Use [this helm chart](https://github.com/drone/charts) to install drone ci and integrate it with your Github account.
-
-```shell
-helm repo add drone https://charts.drone.io
-helm repo update
-helm search repo drone
-
-# see installed helm releases
-helm list
-
-# generate DRONE_RPC_SECRET with:
-TMP_DRONE_RPC_SECRET=$(openssl rand -hex 32)
-
-# to access github client_id and secret generate a new oauth application here: https://github.com/settings/developers
-TMP_GITHUB_CLIENT_SECRET=<>
-
-# install drone server on k8s
-helm install drone drone/drone \
-    --namespace ci \
-    -f ./provisioning/values-drone.yaml \
-    --set env.DRONE_RPC_SECRET=$TMP_DRONE_RPC_SECRET \
-    --set env.DRONE_GITHUB_CLIENT_SECRET=$TMP_GITHUB_CLIENT_SECRET
-
-# install drone k8s runner (which runs the pipeline steps) in k8s
-
-
-## uninstall
-helm uninstall drone --namespace ci
-
-```
-
-- drone ci
-- [Certbot (Lets Encrypt)]() - to handle certificate renewal
-- nginx
-  
 
 ## CI/CD
 
 Use drone ci to deploy the following applications in k3s:
 
-- [nginx config]() - as a reverse proxy which handles tls handoff and maps an port to a subdomain (e.g. kvb.weyrich.dev) 
 - [kvb]()
 - [kvb-ui]()
 - [spotidash]()
