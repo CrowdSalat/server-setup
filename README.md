@@ -172,6 +172,30 @@ argocd login localhost:8080
 kubectl -n argocd delete secret argocd-initial-admin-secret
 ```
 
+### Drone CI
+
+1. add [drone helm chart](https://github.com/drone/charts)
+2. install [drone server](https://github.com/drone/charts/tree/master/charts/drone)
+  - [Generate RPC secret](https://readme.drone.io/server/provider/github/#create-a-shared-secret)
+  - [Get Client id and secret from github](https://github.com/settings/developers)
+  - create sealedSecret
+3. 
+
+```shell
+# 1. add helm repo
+helm repo add drone https://charts.drone.io
+helm repo update
+
+# 2. install drone server
+kubectl create secret generic drone-secrets --dry-run=client --from-literal=DRONE_GITHUB_CLIENT_ID=<REPLACE> --from-literal=DRONE_GITHUB_CLIENT_SECRET=<REPLACE> --from-literal=DRONE_RPC_SECRET=<REPLACE> -o yaml | \
+ kubeseal --controller-name=sealed-secrets --controller-namespace=kube-system  \
+--namespace droneci --name drone-secrets --format yaml > drone-secrets.yaml
+
+kubectl apply -f ./provisioning/droneci/drone-secrets.yaml -n droneci
+
+helm install drone drone/drone --namespace droneci --values drone-values.yaml
+```
+
 ## CI/CD
 
 Use drone ci to deploy the following applications in k3s:
