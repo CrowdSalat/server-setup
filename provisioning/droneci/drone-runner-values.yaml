@@ -10,7 +10,7 @@ env:
   DRONE_SECRET_PLUGIN_ENDPOINT: http://drone-kubernetes-secrets:3000
   ## Ref: https://kube-runner.docs.drone.io/installation/reference/drone-secret-plugin-token/
   #
-  DRONE_SECRET_PLUGIN_TOKEN: your-shared-secret-value-here
+  #DRONE_SECRET_PLUGIN_TOKEN: your-shared-secret-value-here
 
 extraSecretNamesForEnvFrom:
   - drone-secrets
