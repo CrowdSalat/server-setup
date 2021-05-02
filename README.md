@@ -194,9 +194,9 @@ helm repo update
 # 2. install drone server
 kubectl create secret generic drone-secrets --dry-run=client --from-literal=DRONE_GITHUB_CLIENT_ID=<REPLACE> --from-literal=DRONE_GITHUB_CLIENT_SECRET=<REPLACE> --from-literal=DRONE_RPC_SECRET=<REPLACE> -o yaml | \
  kubeseal --controller-name=sealed-secrets --controller-namespace=kube-system  \
---namespace droneci --name drone-secrets --format yaml > drone-secrets.yaml
+--namespace droneci --name drone-secrets --format yaml > secret-drone.yaml
 
-kubectl apply -f drone-secrets.yaml -n droneci
+kubectl apply -f secret-drone.yaml -n droneci
 
 helm install drone drone/drone --namespace droneci --values drone-values.yaml
 
@@ -209,9 +209,9 @@ helm install drone-runner-kube drone/drone-runner-kube --namespace droneci --val
 # 5. create and apply secret
 kubectl create secret generic dockerhub --dry-run=client --from-literal=username=<REPLACE> --from-literal=password=<REPLACE> -o yaml | \
  kubeseal --controller-name=sealed-secrets --controller-namespace=kube-system  \
---namespace droneci --name dockerhub --format yaml > dockerhub.yaml
+--namespace droneci --name dockerhub --format yaml > secret-dockerhub.yaml
 
-kubectl apply -f ./provisioning/droneci/dockerhub.yaml -n droneci
+kubectl apply -f ./provisioning/droneci/secret-dockerhub.yaml -n droneci
 ```
 
 - [How to use secrets in pipelines](https://docs.drone.io/secret/external/kubernetes/)
