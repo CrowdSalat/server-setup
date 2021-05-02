@@ -184,7 +184,7 @@ kubectl -n argocd delete secret argocd-initial-admin-secret
 4. install [drone k8s runner](https://github.com/drone/charts/blob/master/charts/drone-runner-kube/docs/install.md)
   - set rpc secret with DRONE_RPC_SECRET env
   - configure drone k8s secret plugin
-5. allow drone service account of runner and secret extension to create secrets. The name of the service account is by default the name of the namespace in which the pods are deployed.
+5. add seret which contains dockerhub credentials
 
 ```shell
 # 1. add helm repo
@@ -206,10 +206,17 @@ helm install drone-kubernetes-secrets drone/drone-kubernetes-secrets --namespace
 # 4. install k8s runner
 helm install drone-runner-kube drone/drone-runner-kube --namespace droneci --values drone-runner-values.yaml
 
+# 5. create and apply secret
+kubectl create secret generic dockerhub --dry-run=client --from-literal=username=<REPLACE> --from-literal=password=<REPLACE> -o yaml | \
+ kubeseal --controller-name=sealed-secrets --controller-namespace=kube-system  \
+--namespace droneci --name dockerhub --format yaml > dockerhub.yaml
+
+kubectl apply -f ./provisioning/droneci/dockerhub.yaml -n droneci
 ```
 
 - [How to use secrets in pipelines](https://docs.drone.io/secret/external/kubernetes/)
 - The secret are expected to be in the droneci namespace
+- The [promote feature](https://docs.drone.io/promote/#how-to-promote)is triggered by the "Deploy" Button and allows to start a separate Pipeline
 
 ## CI/CD
 
