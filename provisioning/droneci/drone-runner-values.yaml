@@ -1,0 +1,16 @@
+rbac:
+  buildNamespaces:
+    - droneci
+
+env:
+  DRONE_NAMESPACE_DEFAULT: droneci
+
+  ## Ref: https://kube-runner.docs.drone.io/installation/reference/drone-secret-plugin-endpoint/
+  #
+  DRONE_SECRET_PLUGIN_ENDPOINT: http://drone-kubernetes-secrets:3000
+  ## Ref: https://kube-runner.docs.drone.io/installation/reference/drone-secret-plugin-token/
+  #
+  DRONE_SECRET_PLUGIN_TOKEN: your-shared-secret-value-here
+
+extraSecretNamesForEnvFrom:
+  - drone-secrets

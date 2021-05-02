@@ -179,7 +179,12 @@ kubectl -n argocd delete secret argocd-initial-admin-secret
   - [Generate RPC secret](https://readme.drone.io/server/provider/github/#create-a-shared-secret)
   - [Get Client id and secret from github](https://github.com/settings/developers)
   - create sealedSecret
-3. 
+3. install [drone k8 secrets extension](https://github.com/drone/charts/blob/master/charts/drone-kubernetes-secrets/docs/install.md)
+  - set env variable SECRET_KEY to the value of the rpc secret
+4. install [drone k8s runner](https://github.com/drone/charts/blob/master/charts/drone-runner-kube/docs/install.md)
+  - set rpc secret with DRONE_RPC_SECRET env
+  - configure drone k8s secret plugin
+5. allow drone service account of runner and secret extension to create secrets. The name of the service account is by default the name of the namespace in which the pods are deployed.
 
 ```shell
 # 1. add helm repo
@@ -194,7 +199,17 @@ kubectl create secret generic drone-secrets --dry-run=client --from-literal=DRON
 kubectl apply -f ./provisioning/droneci/drone-secrets.yaml -n droneci
 
 helm install drone drone/drone --namespace droneci --values drone-values.yaml
+
+# 3. install drone k8s secret extension
+helm install drone-kubernetes-secrets drone/drone-kubernetes-secrets --namespace droneci --set extraSecretNamesForEnvFrom={"drone-secrets"} --set rbac.secretNamespace="droneci"
+
+# 4. install k8s runner
+helm install drone-runner-kube drone/drone-runner-kube --namespace droneci --values drone-runner-values.yaml
+
 ```
+
+- [How to use secrets in pipelines](https://docs.drone.io/secret/external/kubernetes/)
+- The secret are expected to be in the droneci namespace
 
 ## CI/CD
 
