@@ -1,0 +1,10 @@
+argocd:
+  namespace:  argocd
+  defaultTargetNamespace: apps
+
+applications:
+  - name:
+    gitPath:
+    gitRepo:
+    
+

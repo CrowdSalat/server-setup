@@ -1,0 +1,12 @@
+dependencies:
+- name: drone
+  repository: https://charts.drone.io
+  version: 0.1.7
+- name: drone-kubernetes-secrets
+  repository: https://charts.drone.io
+  version: 0.1.1
+- name: drone-runner-kube
+  repository: https://charts.drone.io
+  version: 0.1.5
+digest: sha256:7c03615f9ed0857d01073f478bec628cfe31c376b01b330f6e3b8606d9b2249d
+generated: "2021-05-05T23:02:35.121558208+02:00"

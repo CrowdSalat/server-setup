@@ -1,0 +1,66 @@
+drone:
+  env:
+    DRONE_SERVER_HOST: droneci.weyrich.dev
+    DRONE_SERVER_PROTO: http
+    DRONE_USER_FILTER: crowdsalat
+    DRONE_USER_CREATE: username:crowdsalat,admin:true
+
+  extraSecretNamesForEnvFrom:
+    - drone-secrets
+
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: cloudflare-dns-acme-ca
+      kubernetes.io/ingress.class: traefik
+    hosts:
+      - host: droneci.weyrich.dev
+        servicePort: http
+        paths:
+          - /
+    tls:
+    - hosts:
+      - droneci.weyrich.dev
+      secretName: droneci-tls-secret
+
+drone-kubernetes-secrets:
+  rbac:
+    ## The namespace that the extension is allowed to fetch secrets from. Unless
+    ## rbac.restrictToSecrets is set below, the extension will be able to pull all secrets in
+    ## the namespace specified here.
+    ##
+    secretNamespace: droneci
+
+  ## The keys within the "env" map are mounted as environment variables on the secrets extension pod.
+  ##
+  env:
+    ## The Kubernetes namespace to retrieve secrets from.
+    ##
+    KUBERNETES_NAMESPACE: droneci
+    
+    ## REQUIRED: Shared secret value for comms between the Kubernetes runner and this secrets plugin.
+    ## Must match the value set in the runner's env.DRONE_SECRET_PLUGIN_TOKEN.
+    ## Ref: https://kube-runner.docs.drone.io/installation/reference/drone-secret-plugin-token/
+    ##
+    #SECRET_KEY: your-shared-secret-value-here
+
+  extraSecretNamesForEnvFrom:
+    - drone-secrets
+
+drone-runner-kube:
+  rbac:
+    buildNamespaces:
+      - droneci
+
+  env:
+    DRONE_NAMESPACE_DEFAULT: droneci
+
+    ## Ref: https://kube-runner.docs.drone.io/installation/reference/drone-secret-plugin-endpoint/
+    #
+    DRONE_SECRET_PLUGIN_ENDPOINT: http://drone-kubernetes-secrets:3000
+    ## Ref: https://kube-runner.docs.drone.io/installation/reference/drone-secret-plugin-token/
+    #
+    #DRONE_SECRET_PLUGIN_TOKEN: your-shared-secret-value-here
+
+  extraSecretNamesForEnvFrom:
+    - drone-secrets

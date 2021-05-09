@@ -52,9 +52,9 @@ kubectl config get-contexts
 - It consists of a [kubeseal](https://github.com/bitnami-labs/sealed-secrets#usage) cli and a operator which runs in the cluster. The installation is described [here](https://github.com/bitnami-labs/sealed-secrets/releases)
 - check [release notes](https://github.com/bitnami-labs/sealed-secrets/blob/main/RELEASE-NOTES.md) before updating
 
-### install
+#### install
 
-```
+```shell
 # install cli
 brew install kubeseal@0.15.0
 
@@ -69,7 +69,7 @@ kubeseal \
  --fetch-cert > sealedSecretCert.pem
 ```
 
-### usage examples
+#### usage examples
 
 - You can create a sealedSecret resource either
   1. by converting a existing secret resource (yaml) to a sealedSecret
@@ -171,6 +171,15 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 argocd login localhost:8080
 kubectl -n argocd delete secret argocd-initial-admin-secret
 ```
+
+## deployment
+
+Argocd is the last component which is applied manually. The other components are applied to k3s with the [apps of apps pattern](https://argoproj.github.io/argo-cd/operator-manual/cluster-bootstrapping/).
+
+To add a new app edit the values.yaml of the [argo-app-of-apps](./deployment/argo-app-of-apps) and if necessary add the helm chart to the [charts](./deployment/charts) directory.
+
+- [Drone CI](./deployment/charts/droneci-umbrella/)
+- [Spotidash](./deployment/charts/spotidash/)
 
 ### Drone CI
 
