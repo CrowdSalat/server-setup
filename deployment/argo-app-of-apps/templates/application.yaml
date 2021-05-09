@@ -3,16 +3,20 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: {{ .name }}
-  namespace: {{ .Values.argocd.namespace }}
+  namespace: {{ $.Values.argocd.namespace }}
   finalizers:
   - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
-    namespace: "{{ default .Values.argocd.defaultTargetNamespace .targetNamespace }}"
+    namespace: "{{ $.Values.argocd.defaultTargetNamespace | default .targetNamespace }}"
     server: https://kubernetes.default.svc
-  project: default
   source:
-    path: {{ .gitPath }}
-    repoURL: {{ .gitRepo }}
+    path: {{ .gitPath | quote }}
+    repoURL: {{ .gitRepo | quote }}
     targetRevision: HEAD
+  project: default
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
 {{- end }}
