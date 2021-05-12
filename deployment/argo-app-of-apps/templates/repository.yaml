@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: argocd-repositories
+  name: argocd-cm
   namespace: {{ .Values.argocd.namespace }}
   labels:
     app.kubernetes.io/name: argocd-cm
