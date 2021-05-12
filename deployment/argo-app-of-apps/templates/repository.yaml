@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-repositories
+  namespace: {{ .Values.argocd.namespace }}
+  labels:
+    app.kubernetes.io/name: argocd-cm
+    app.kubernetes.io/part-of: argocd
+data:
+  repositories: |
+    {{- range .Values.helmrepos }}
+    - type: helm
+      url: {{ .url }}
+      name: {{ .name }}
+    {{- end }}

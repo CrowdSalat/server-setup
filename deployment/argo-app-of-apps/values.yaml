@@ -2,6 +2,11 @@ argocd:
   namespace: argocd
   defaultTargetNamespace: apps
 
+helmrepos:
+  - name: drone 
+    url: https://charts.drone.io 
+
+
 applications:
   - name: droneci
     gitPath: deployment/helm-charts/droneci-umbrella
