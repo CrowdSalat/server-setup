@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-of-apps
+spec:
+  destination:
+    name: ''
+    namespace: apps
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: deployment/argo-app-of-apps
+    repoURL: 'https://github.com/CrowdSalat/server-setup'
+    targetRevision: HEAD
+  project: default
+  syncPolicy: {}

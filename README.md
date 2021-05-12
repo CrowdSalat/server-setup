@@ -176,64 +176,9 @@ kubectl -n argocd delete secret argocd-initial-admin-secret
 
 Argocd is the last component which is applied manually. The other components are applied to k3s with the [apps of apps pattern](https://argoproj.github.io/argo-cd/operator-manual/cluster-bootstrapping/).
 
+The initial argo application is deployed with `kubectl apply -f argo-bootstrap-app.yaml`
+
 To add a new app edit the values.yaml of the [argo-app-of-apps](./deployment/argo-app-of-apps) and if necessary add the helm chart to the [charts](./deployment/charts) directory.
 
 - [Drone CI](./deployment/charts/droneci-umbrella/)
 - [Spotidash](./deployment/charts/spotidash/)
-
-### Drone CI
-
-1. add [drone helm chart](https://github.com/drone/charts)
-2. install [drone server](https://github.com/drone/charts/tree/master/charts/drone)
-  - [Generate RPC secret](https://readme.drone.io/server/provider/github/#create-a-shared-secret)
-  - [Get Client id and secret from github](https://github.com/settings/developers)
-  - create sealedSecret
-3. install [drone k8 secrets extension](https://github.com/drone/charts/blob/master/charts/drone-kubernetes-secrets/docs/install.md)
-  - set env variable SECRET_KEY to the value of the rpc secret
-4. install [drone k8s runner](https://github.com/drone/charts/blob/master/charts/drone-runner-kube/docs/install.md)
-  - set rpc secret with DRONE_RPC_SECRET env
-  - configure drone k8s secret plugin (DRONE_SECRET_PLUGIN_ENDPOINT & DRONE_SECRET_PLUGIN_TOKEN)
-5. add seret which contains dockerhub credentials
-
-```shell
-# 1. add helm repo
-helm repo add drone https://charts.drone.io
-helm repo update
-
-# 2. install drone server
-kubectl create secret generic drone-secrets --dry-run=client --from-literal=DRONE_GITHUB_CLIENT_ID=<REPLACE> --from-literal=DRONE_GITHUB_CLIENT_SECRET=<REPLACE> --from-literal=DRONE_RPC_SECRET=<REPLACE> -o yaml | \
- kubeseal --controller-name=sealed-secrets --controller-namespace=kube-system  \
---namespace droneci --name drone-secrets --format yaml > secret-drone.yaml
-
-kubectl apply -f secret-drone.yaml -n droneci
-
-helm install drone drone/drone --namespace droneci --values drone-values.yaml
-
-# 3. install drone k8s secret extension
-helm install drone-kubernetes-secrets drone/drone-kubernetes-secrets --namespace droneci --values drone-secret-plugin.yaml
-
-# 4. install k8s runner
-helm install drone-runner-kube drone/drone-runner-kube --namespace droneci --values drone-runner-values.yaml
-
-# 5. create and apply secret
-kubectl create secret generic dockerhub --dry-run=client --from-literal=username=<REPLACE> --from-literal=password=<REPLACE> -o yaml | \
- kubeseal --controller-name=sealed-secrets --controller-namespace=kube-system  \
---namespace droneci --name dockerhub --format yaml > secret-dockerhub.yaml
-
-kubectl apply -f ./provisioning/droneci/secret-dockerhub.yaml -n droneci
-```
-
-- [How to use secrets in pipelines](https://docs.drone.io/secret/external/kubernetes/)
-- The secret are expected to be in the droneci namespace
-- The [promote feature](https://docs.drone.io/promote/#how-to-promote)is triggered by the "Deploy" Button and allows to start a separate Pipeline
-- drone cli ist helpful when troubleshooting. Login commands can be copied from the web ui.
-
-## CI/CD
-
-Use drone ci to deploy the following applications in k3s:
-
-- [kvb]()
-- [kvb-ui]()
-- [spotidash]()
-
-## Documentation
