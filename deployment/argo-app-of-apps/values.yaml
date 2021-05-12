@@ -11,3 +11,4 @@ applications:
   - name: droneci
     gitPath: deployment/helm-charts/droneci-umbrella
     gitRepo: https://github.com/CrowdSalat/server-setup
+    targetNamespace: drooneci

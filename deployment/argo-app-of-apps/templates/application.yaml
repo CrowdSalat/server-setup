@@ -8,7 +8,7 @@ metadata:
   - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
-    namespace: "{{ $.Values.argocd.defaultTargetNamespace | default .targetNamespace }}"
+    namespace: "{{ .targetNamespace | default $.Values.argocd.defaultTargetNamespace  }}"
     server: https://kubernetes.default.svc
   source:
     path: {{ .gitPath | quote }}
