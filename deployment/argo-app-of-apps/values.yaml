@@ -8,7 +8,8 @@ helmrepos:
 
 
 applications:
-  - name: droneci
+  # name need to be drone otherwise runner does not find it
+  - name: drone
     gitPath: deployment/helm-charts/droneci-umbrella
     gitRepo: https://github.com/CrowdSalat/server-setup
     targetNamespace: droneci

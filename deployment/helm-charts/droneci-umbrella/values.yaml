@@ -48,13 +48,14 @@ drone-kubernetes-secrets:
     - drone-secrets
 
 drone-runner-kube:
+
   rbac:
     buildNamespaces:
       - droneci
 
   env:
     DRONE_NAMESPACE_DEFAULT: droneci
-
+    DRONE_RPC_HOST: drone
     ## Ref: https://kube-runner.docs.drone.io/installation/reference/drone-secret-plugin-endpoint/
     #
     DRONE_SECRET_PLUGIN_ENDPOINT: http://drone-kubernetes-secrets:3000

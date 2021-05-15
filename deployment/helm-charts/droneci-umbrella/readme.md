@@ -1,13 +1,12 @@
 # droneci-umbrella
 
-- Deployt with [Argocd application]()
-- Argocd application is deployed with [argo-apps-of-apps]() which is 
+Deployed with [Argocd application](../../argo-app-of-apps).
 
 ## Usage
 
 ```shell
 helm dep up
-helm template droneci -n droneci
+helm template drone/drone -n droneci
 ```
 
 ## Manually install helm releases
