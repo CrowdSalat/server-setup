@@ -12,4 +12,5 @@ spec:
     repoURL: 'https://github.com/CrowdSalat/server-setup'
     targetRevision: HEAD
   project: default
-  syncPolicy: {}
+  syncPolicy: 
+    automated: {}
