@@ -1,4 +1,5 @@
 drone:
+  nameOverride: drone
   env:
     DRONE_SERVER_HOST: droneci.weyrich.dev
     DRONE_SERVER_PROTO: http
@@ -24,6 +25,7 @@ drone:
       secretName: droneci-tls-secret
 
 drone-kubernetes-secrets:
+  nameOverride: drone-kubernetes-secrets
   rbac:
     ## The namespace that the extension is allowed to fetch secrets from. Unless
     ## rbac.restrictToSecrets is set below, the extension will be able to pull all secrets in
@@ -48,7 +50,7 @@ drone-kubernetes-secrets:
     - drone-secrets
 
 drone-runner-kube:
-
+  nameOverride: drone-runner-kube
   rbac:
     buildNamespaces:
       - droneci
