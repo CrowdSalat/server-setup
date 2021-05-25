@@ -1,0 +1,86 @@
+# Default values for spotidash.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+spotifiyOauth:
+  callbackUrl: https://spotidash.weyrich.dev/albums
+  encyptedClientId: "AgBALxEc3O7IxkSxqd9o9P8qiVLWaZhp3jKx3YgiUX3bEFgqgA3POxvYVJwCH0eUAQHTIFfxCJMIZYJairs8E9Wdi8dwQAQMeSaCCVu1MJBlmhOiyvvvtvtRLtSAm18853Skw5EmMAep88X4O8ucuvLE/mLddoW394wp/rE2U1k/ThNam4Og0jgEbM61O52JfveP7BDFAhPTXeBGyu+CaGOItfLWU0R/Dc8O6hvCMlS2e3kyI54MB2Q+oerev3oEGUKBzAICpwvcCCSHoGFlnj+5M8C9Kk2Wc8ZWeJO/30Py1fyqqI6YGdGyNU6WaLo50Y/3s+1jToN8lTnBs0qUI91ARTAfncAuNWmYPesGllsu4SI2stMhNbrKTbZkS6VK7hlJmTK9QtBeik4NqzLUUiXPQDLBvfAV5mqo5WkgODcDwTswWoMclkR5xfPhSRAhAZQvRt4V3grEs2Itsm7+wEulr7Wa//SZblmnKUH7obTweX2vTNcejztLKiHKEhgIiCt9eiHEexKKx0wjs3cyIVth8/3LWO/zvL9rOa2uGnT9U9wpVLObN+OyhwTPAM+io1bXh7Lcc4k4HkWm8WRohGVugYm8i9keKoOXX720fB4fOr471VaoEEGKjtnA0dhMdfBAR8DL6f5htd3dzYo7K8MDNEU38HP3nQh1qTCWWRPp8KOyWHLiant8zsR+TAqzskXSZYkU35FreTMb9lhb6xk5VxfapbTRsCLiiB04ybWvCw=="
+  encyptedClientSecret: "AgAViRBGf9Nah7/0rYXgSFimQoZ6/VGbI+i5JAceUWCuRFYMrUX7mckvXNlR9yUsw2sbffhwVVRhDpeQ9lFig8CqvmJSXZ0lYxc3WI4TS3pRPqAa14cZSFX4QtYUg/3vXqAPSMb8PJNRa14xtu24Ws+lRgn5gU6VcUQZs8gYJHLkgNl+Qq3x+HQW+jSneI8WYgTAmvCnaZD4t9Yxik3e7eF0oLqQRP6qrHLVRgPqUcKWNwfKNago4cKj+J/lZ4H3M24mRne5uNcOVdmj/82TwXHfEn97hicpIylgqp57oFiHKXorz1QtufQZMOcliwm3Yzd7VfEnmfUDrJPUr3FE+rZQb2o+APWYkPfzlIrIscR5a7O/EmTvwOtd1EnXlqbfAA10oYQM+ZKE7Vs7Eszg6ookntCwE1rmfvXYxcKq+MAhje9EIji2k//alc1BMs67hVfuo3iTwyVyGV3Hzll5UNuoknSDS/nETj/oBIkRCaNqfTvHX4agLaJbhbZsTe7ZoHD/jTZFYp47B3QGRfSKof7nOLFhz1lTY8VqQDQ6b61VGyNrpJyaEmKl+BK74Kh5S17QuouO5meQ1AM/2LLYXb6xYnELEW8/5FARzTXrfpnYSZ2IZHufBmSVmi6ww7OE25HDC1LeAYqIbDUHPR9UdFnAYETnswPm8gUjYvPi1XEQZ+wf4n4O5kIvhzXl+c5HFjN2M3/dpiUd1vUR2kRGPmrJlVhYg1WS98bfneWq3PhVLw=="
+
+image:
+  repository: crowdsalat/spotidash
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: cloudflare-dns-acme-ca
+    kubernetes.io/ingress.class: traefik
+  hosts:
+    - host: spotidash.weyrich.dev
+      paths:
+      - path: /
+
+  tls:
+    - secretName: spotidash-tls
+      hosts:
+        - spotidash.weyrich.dev
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

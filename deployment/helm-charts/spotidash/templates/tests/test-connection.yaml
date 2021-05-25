@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "spotidash.fullname" . }}-test-connection"
+  labels:
+    {{- include "spotidash.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "spotidash.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never
