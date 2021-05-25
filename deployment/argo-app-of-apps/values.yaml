@@ -13,3 +13,7 @@ applications:
     gitPath: deployment/helm-charts/droneci-umbrella
     gitRepo: https://github.com/CrowdSalat/server-setup
     targetNamespace: droneci
+  - name: spotidash
+    gitPath: deployment/helm-charts/spotidash
+    gitRepo: https://github.com/CrowdSalat/server-setup
+    targetNamespace: apps
