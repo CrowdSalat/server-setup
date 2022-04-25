@@ -1,3 +1,5 @@
+MOVED TO REPO [k3s-cluster](https://github.com/CrowdSalat/k3s-cluster)
+
 # Server Setup
 
 ## Infrastructure
